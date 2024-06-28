@@ -2,7 +2,7 @@ fastapi[all]
 uvicorn
 python-dotenv
 pydantic
-google-transit
+google
 protobuf
 requests
 geopy
