@@ -1,1 +1,8 @@
 fastapi[all]
+uvicorn
+python-dotenv
+pydantic
+google-transit
+protobuf
+requests
+geopy
