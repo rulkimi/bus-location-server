@@ -8,6 +8,8 @@ from google.protobuf.json_format import MessageToDict
 from requests import get
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut, GeocoderServiceError
+import time
+from requests.exceptions import RequestException
 
 load_dotenv()
 
@@ -48,13 +50,16 @@ class Vehicle(BaseModel):
 URL = 'https://api.data.gov.my/gtfs-realtime/vehicle-position/prasarana?category=rapid-bus-mrtfeeder'
 
 def fetch_gtfs_realtime_feed(url):
-    try:
-        response = get(url)
-        response.raise_for_status()
-        return response.content
-    except Exception as e:
-        print(f"Error fetching GTFS Realtime feed: {e}")
-        return None
+    retries = 5
+    for _ in range(retries):
+        try:
+            response = get(url)
+            response.raise_for_status()
+            return response.content
+        except RequestException as e:
+            print(f"Error fetching GTFS Realtime feed: {e}")
+            time.sleep(5)  # wait for 5 seconds before retrying
+    return None
 
 def reverse_geocode(lat, lon):
     try:
