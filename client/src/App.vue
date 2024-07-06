@@ -78,7 +78,7 @@ export default {
       this.loading = true;
       this.routeId = routeId;
       try {
-        const response = await fetch(`https://bus-location-server.onrender.com/vehicle/${routeId}`);
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/vehicle/${routeId}`);
         const responseData = await response.json();
         this.buses = responseData.vehicles;
 
@@ -91,7 +91,7 @@ export default {
     },
     async fetchAllRoutes() {
       try {
-        const response = await fetch(`https://bus-location-server.onrender.com/routes`);
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/routes`);
         const responseData = await response.json();
         this.routes = responseData.active_routes;
       } catch (error) {
