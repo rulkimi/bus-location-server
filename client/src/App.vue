@@ -4,7 +4,7 @@
       <!-- Available Routes List -->
       <div class="mt-4">
         <h1 class="text-2xl font-bold mb-4">Available Routes:</h1>
-        <div v-if="routes.feederBus.length || routes.rapidKL.length " class="flex flex-col md:flex-row flex-start gap-4">
+        <div v-if="routes.feederBus.length || routes.rapidKL.length" class="flex flex-col md:flex-row flex-start gap-4">
           <active-buses
             id="feeder-bus"
             label="MRT Feeder Bus"
@@ -34,13 +34,13 @@
                 v-model="routeId"
                 :placeholder="routes.length ? 'Search route ID here or click from the list above' : 'Please wait for the server to load.'"
                 class="mb-4"
-                :disabled="!routes.length"
+                :disabled="!routes.feederBus.length && !routes.rapidKL.length"
               ></FormInput>
               <button
                 @click="fetchLocation(routeId)"
                 class="bg-blue-500 text-white px-4 py-2 rounded-md w-full"
                 :class="loading ? 'opacity-75' : 'hover:bg-blue-600'"
-                :disabled="loading || !routes.length"
+                :disabled="loading"
               >
                   Search
               </button>
