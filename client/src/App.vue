@@ -4,7 +4,20 @@
       <!-- Available Routes List -->
       <div class="mt-4">
         <h1 class="text-2xl font-bold mb-4">Available Routes:</h1>
-        <active-buses :routes="routes" @fetch-location="fetchLocation" />
+        <div class="flex flex-col md:flex-row flex-start gap-4">
+          <active-buses
+            id="feeder-bus"
+            label="MRT Feeder Bus"
+            :routes="routes.feederBus"
+            @fetch-location="fetchLocation"
+          />
+          <active-buses
+            id="rapid-kl"
+            label="Rapid KL Bus"
+            :routes="routes.rapidKL"
+            @fetch-location="fetchLocation"
+          />
+        </div>
       </div>
 
       <div class="mt-4">
@@ -65,7 +78,10 @@ export default {
     return {
       routeId: '',
       buses: [],
-      routes: [],
+      routes: {
+        feederBus: [],
+        rapidKL: []
+      },
       loading: false,
       noBusFound: false
     };
@@ -93,7 +109,8 @@ export default {
       try {
         const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/routes`);
         const responseData = await response.json();
-        this.routes = responseData.active_routes;
+        this.routes.feederBus = responseData.feeder_bus_active_routes;
+        this.routes.rapidKL = responseData.rapid_kl_active_routes;
       } catch (error) {
         console.error(error);
       }

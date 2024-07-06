@@ -48,7 +48,8 @@ class Vehicle(BaseModel):
         }
 
 # Sample GTFS-R URL from Malaysia's Open API
-URL = 'https://api.data.gov.my/gtfs-realtime/vehicle-position/prasarana?category=rapid-bus-mrtfeeder'
+FEEDER_BUS_URL = 'https://api.data.gov.my/gtfs-realtime/vehicle-position/prasarana?category=rapid-bus-mrtfeeder'
+RAPID_KL_URL = 'https://api.data.gov.my/gtfs-realtime/vehicle-position/prasarana?category=rapid-bus-kl'
 
 def fetch_gtfs_realtime_feed(url):
     retries = 5
@@ -77,28 +78,49 @@ def read_root():
 
 @app.get("/routes")
 def get_routes():
-    feed_content = fetch_gtfs_realtime_feed(URL)
-    if not feed_content:
+    feeder_bus_content = fetch_gtfs_realtime_feed(FEEDER_BUS_URL)
+    rapid_kl_content = fetch_gtfs_realtime_feed(RAPID_KL_URL)
+
+    if not feeder_bus_content or not rapid_kl_content:
         raise HTTPException(status_code=500, detail="Failed to fetch bus data.")
 
-    feed = gtfs_realtime_pb2.FeedMessage()
-    feed.ParseFromString(feed_content)
-    vehicles = [MessageToDict(entity.vehicle) for entity in feed.entity]
+    feeder_feed = gtfs_realtime_pb2.FeedMessage()
+    feeder_feed.ParseFromString(feeder_bus_content)
+    rapid_kl_feed = gtfs_realtime_pb2.FeedMessage()
+    rapid_kl_feed.ParseFromString(rapid_kl_content)
 
-    active_routes = set(vehicle.get('trip', {}).get('routeId', 'N/A') for vehicle in vehicles)
+    feeder_vehicles = [MessageToDict(entity.vehicle) for entity in feeder_feed.entity]
+    rapid_kl_vehicles = [MessageToDict(entity.vehicle) for entity in rapid_kl_feed.entity]
 
-    routes_list = [route for route in active_routes]
-    return {"active_routes": routes_list}
+    feeder_active_routes = set(vehicle.get('trip', {}).get('routeId', 'N/A') for vehicle in feeder_vehicles)
+    rapid_kl_active_routes = set(vehicle.get('trip', {}).get('routeId', 'N/A') for vehicle in rapid_kl_vehicles)
+
+    routes = {
+        "feeder_bus_active_routes": list(feeder_active_routes),
+        "rapid_kl_active_routes": list(rapid_kl_active_routes)
+    }
+
+    return routes
 
 @app.get("/vehicle/{route_id}")
 def get_vehicle_by_route(route_id: str):
-    feed_content = fetch_gtfs_realtime_feed(URL)
-    if not feed_content:
+    feeder_bus_content = fetch_gtfs_realtime_feed(FEEDER_BUS_URL)
+    rapid_kl_content = fetch_gtfs_realtime_feed(RAPID_KL_URL)
+
+    if not feeder_bus_content and not rapid_kl_content:
         raise HTTPException(status_code=500, detail="Failed to fetch bus data.")
 
-    feed = gtfs_realtime_pb2.FeedMessage()
-    feed.ParseFromString(feed_content)
-    vehicles = [MessageToDict(entity.vehicle) for entity in feed.entity]
+    vehicles = []
+
+    if feeder_bus_content:
+        feeder_feed = gtfs_realtime_pb2.FeedMessage()
+        feeder_feed.ParseFromString(feeder_bus_content)
+        vehicles.extend([MessageToDict(entity.vehicle) for entity in feeder_feed.entity])
+
+    if rapid_kl_content:
+        rapid_kl_feed = gtfs_realtime_pb2.FeedMessage()
+        rapid_kl_feed.ParseFromString(rapid_kl_content)
+        vehicles.extend([MessageToDict(entity.vehicle) for entity in rapid_kl_feed.entity])
 
     structured_vehicles = []
     for vehicle in vehicles:
