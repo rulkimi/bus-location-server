@@ -26,12 +26,12 @@
           <!-- Left side (1/3 width on medium screens and larger) -->
           <div class="md:col-span-1">
             <div class="bg-white p-6 rounded-lg shadow-md">
-              <input
-                type="text"
+              <FormInput
+                id="search-route"
                 v-model="routeId"
-                class="route-input border border-gray-300 px-3 py-2 rounded-md w-full mb-4"
                 placeholder="Search route ID here or click from the list above"
-              />
+                class="mb-4"
+              ></FormInput>
               <button
                 @click="fetchLocation(routeId)"
                 class="bg-blue-500 text-white px-4 py-2 rounded-md w-full"
@@ -66,13 +66,15 @@
 import ActiveBuses from './components/ActiveBuses.vue';
 import BusMap from './components/BusMap.vue';
 import BusList from './components/BusList.vue';
+import FormInput from './components/templates/FormInput.vue';
 
 export default {
   name: 'App',
   components: {
     BusMap,
     BusList,
-    ActiveBuses
+    ActiveBuses,
+    FormInput
   },
   data() {
     return {

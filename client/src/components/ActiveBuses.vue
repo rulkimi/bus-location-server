@@ -1,25 +1,23 @@
 <template>
   <div v-if="routes.length" class="w-full">
-    <label :for="id + '-routes'" class="block text-sm font-medium text-gray-700">{{ label }}</label>
-    <select
-      :id="id + '-routes'"
-      class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-      @change="fetchLocation($event.target.value)"
-    >
-      <option value="" disabled selected>Select a route</option>
-      <option
-        v-for="route in routes"
-        :key="route"
-        :value="route"
-      >
-        {{ route }}
-      </option>
-    </select>
+    <FormSelect
+      v-model="selectedRoute"
+      :id="id"
+      :label="label"
+      :options="routes"
+      placeholder="Select a route"
+      @change="fetchLocation"
+    />
   </div>
 </template>
 
 <script>
+import FormSelect from './templates/FormSelect.vue';
+
 export default {
+  components: {
+    FormSelect
+  },
   emits: ['fetch-location'],
   props: {
     id: {
@@ -35,9 +33,15 @@ export default {
       required: true
     }
   },
+  data() {
+    return {
+      selectedRoute: ''
+    };
+  },
   methods: {
     fetchLocation(route) {
-      this.$emit('fetch-location', route);
+      // Implement the logic for fetching location based on the selected route
+      console.log('Selected route:', route);
     }
   }
 }
