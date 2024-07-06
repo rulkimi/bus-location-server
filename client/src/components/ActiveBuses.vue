@@ -40,8 +40,7 @@ export default {
   },
   methods: {
     fetchLocation(route) {
-      // Implement the logic for fetching location based on the selected route
-      console.log('Selected route:', route);
+      this.$emit('fetch-location', route);
     }
   }
 }
