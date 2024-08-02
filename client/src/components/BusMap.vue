@@ -5,6 +5,7 @@
       v-for="bus in buses"
       :key="bus.info.vehicle_id"
       :lat-lng="[bus.info.latitude, bus.info.longitude]"
+      @click="onMarkerClick(bus.info.latitude, bus.info.longitude)"
       ref="markers"
     >
       <l-popup>
@@ -67,8 +68,12 @@ export default {
       } else {
         console.error('Marker instance or leafletObject not found:', markerInstance);
       }
+    },
+    onMarkerClick(latitude, longitude) {
+      const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+      const wazeUrl = `https://waze.com/ul?ll=${latitude},${longitude}&navigate=yes`;
+      window.open(wazeUrl, '_blank');
     }
   }
 };
 </script>
-
