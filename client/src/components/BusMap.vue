@@ -74,7 +74,7 @@ export default {
     onMarkerClick(latitude, longitude) {
       const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
       const wazeUrl = `https://waze.com/ul?ll=${latitude},${longitude}&navigate=yes`;
-      window.open(wazeUrl, '_blank');
+      window.open(googleMapsUrl, '_blank');
     }
   }
 };
