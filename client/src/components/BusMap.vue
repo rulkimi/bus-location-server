@@ -1,5 +1,5 @@
 <template>
-  <l-map :zoom="zoom" :center="center" style="height: 600px; width: 100%;">
+  <l-map :zoom="zoom" :center="center" style="height: 100%; width: 100%; border-radius: 6px;">
     <l-tile-layer :url="url" :attribution="attribution" />
     <l-marker
       v-for="bus in buses"
