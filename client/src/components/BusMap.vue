@@ -17,12 +17,13 @@
         </div>
       </l-popup>
     </l-marker>
+    <l-control-zoom position="topright"  ></l-control-zoom>
   </l-map>
 </template>
 
 <script>
 import "leaflet/dist/leaflet.css";
-import { LMap, LTileLayer, LMarker, LPopup } from '@vue-leaflet/vue-leaflet';
+import { LMap, LTileLayer, LMarker, LPopup, LControlZoom } from '@vue-leaflet/vue-leaflet';
 
 export default {
   name: 'BusMap',
@@ -30,7 +31,8 @@ export default {
     LMap,
     LTileLayer,
     LMarker,
-    LPopup
+    LPopup,
+    LControlZoom
   },
   props: {
     buses: Array
