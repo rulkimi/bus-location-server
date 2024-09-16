@@ -180,6 +180,8 @@ def get_vehicle_by_route(route_id: str):
     for vehicle in vehicles:
         vehicle_route_id = vehicle.get('trip', {}).get('routeId', 'N/A')
         if vehicle_route_id.lower() == route_id.lower():
+            print(vehicle)
+            vehicle_id = vehicle.get('vehicle', {}).get('id', 'N/A')
             latitude = vehicle.get('position', {}).get('latitude')
             longitude = vehicle.get('position', {}).get('longitude')
             timestamp = vehicle.get('timestamp', 'N/A')
@@ -187,6 +189,7 @@ def get_vehicle_by_route(route_id: str):
             if latitude and longitude:
                 location_name = reverse_geocode(latitude, longitude)
                 vehicles_on_route.append({
+                    "vehicle_id": vehicle_id,
                     "route_id": vehicle_route_id,
                     "latitude": latitude,
                     "longitude": longitude,

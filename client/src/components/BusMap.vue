@@ -3,16 +3,16 @@
     <l-tile-layer :url="url" :attribution="attribution" />
     <l-marker
       v-for="bus in buses"
-      :key="bus.info.vehicle_id"
-      :lat-lng="[bus.info.latitude, bus.info.longitude]"
-      @click="onMarkerClick(bus.info.latitude, bus.info.longitude)"
+      :key="bus.vehicle_id"
+      :lat-lng="[bus.latitude, bus.longitude]"
+      @click="onMarkerClick(bus.latitude, bus.longitude)"
       ref="markers"
     >
       <l-popup>
         <div>
-          <b>Vehicle ID:</b> {{ bus.info.vehicle_id }}<br>
-          <b>Route ID:</b> {{ bus.info.route_id }}<br>
-          <b>Timestamp:</b> {{ bus.info.timestamp }}<br>
+          <b>Vehicle ID:</b> {{ bus.vehicle_id }}<br>
+          <b>Route ID:</b> {{ bus.route_id }}<br>
+          <b>Timestamp:</b> {{ bus.timestamp }}<br>
           <b>Location:</b> {{ bus.location }}
         </div>
       </l-popup>
@@ -39,9 +39,9 @@ export default {
     buses(newValue) {
       if (!newValue) return;
       const firstBus = newValue[0];
-      this.center = [firstBus.info.latitude, firstBus.info.longitude];
+      this.center = [firstBus.latitude, firstBus.longitude];
 
-      this.$nextTick(() => this.openMarkerPopup(firstBus.info.latitude, firstBus.info.longitude));
+      this.$nextTick(() => this.openMarkerPopup(firstBus.latitude, firstBus.longitude));
     }
   },
   data() {

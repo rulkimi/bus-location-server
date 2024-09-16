@@ -8,13 +8,13 @@
           <active-buses
             id="feeder-bus"
             label="MRT Feeder Bus"
-            :routes="routes.feederBus"
+            :routes="routes.feederBus.map(({ route_id }) => route_id )"
             @fetch-location="fetchLocation"
           />
           <active-buses
             id="rapid-kl"
             label="Rapid KL Bus"
-            :routes="routes.rapidKL"
+            :routes="routes.rapidKL.map(({ route_id }) => route_id )"
             @fetch-location="fetchLocation"
           />
         </div>
