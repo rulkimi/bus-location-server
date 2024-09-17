@@ -1,5 +1,10 @@
 <template>
-  <l-map :zoom="zoom" :center="center" style="height: 100%; width: 100%; border-radius: 6px;">
+  <l-map
+    :key="mapKey"
+    :zoom="zoom"
+    :center="center"
+    :style="mapStyle"
+  >
     <l-tile-layer :url="url" :attribution="attribution" />
     <l-marker
       v-for="bus in buses"
@@ -71,7 +76,8 @@ export default {
     LControlZoom
   },
   props: {
-    buses: Array
+    buses: Array,
+    serverLoading: Boolean
   },
   watch: {
     buses(newValue) {
@@ -80,15 +86,32 @@ export default {
       this.center = [firstBus.latitude, firstBus.longitude];
 
       this.$nextTick(() => this.openMarkerPopup(firstBus.latitude, firstBus.longitude));
-    }
+    },
+    serverLoading(newValue) {
+      console.log('serverLoading changed:', newValue);
+      this.$nextTick(() => {
+        console.log('Updating mapKey:', this.mapKey);
+        this.mapKey += 1;
+      });
+    },
   },
   data() {
     return {
       center: [2.922682, 101.64256],
       zoom: 50,
       url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      mapKey: 0
     };
+  },
+  computed: {
+    mapStyle() {
+      return {
+        height: '100%',
+        width: '100%',
+        filter: `blur(${this.serverLoading ? '6px' : '0px'})`
+      };
+    }
   },
   methods: {
     openMarkerPopup(latitude, longitude) {
@@ -101,7 +124,6 @@ export default {
       );
 
       if (markerInstance && markerInstance.leafletObject) {
-        // open the popup associated with the marker using leafletObject
         markerInstance.leafletObject.openPopup();
       } else {
         console.error('Marker instance or leafletObject not found:', markerInstance);
@@ -118,3 +140,4 @@ export default {
   }
 };
 </script>
+

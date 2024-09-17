@@ -5,26 +5,11 @@ import { ref, onMounted } from 'vue';
 
 // Define emits correctly
 const emit = defineEmits(['route-id']);
-
-const routes = ref({ feederBus: [], rapidKL: [] });
 const selectedBusType = ref('feederBus');  // New state for selected bus type
 
-onMounted(() => {
-  fetchAllRoutes();
-});
-
-const fetchAllRoutes = async () => {
-  try {
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/routes`);
-    const responseData = await response.json();
-    routes.value.feederBus = responseData.feeder_bus_active_routes;
-    routes.value.rapidKL = responseData.rapid_kl_active_routes;
-
-    console.log(routes.value);
-  } catch (error) {
-    console.error(error);
-  }
-};
+defineProps({
+  routes: Object
+})
 
 const getRouteId = routeId => {
   // Use emit to trigger the event

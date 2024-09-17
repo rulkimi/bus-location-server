@@ -4,12 +4,35 @@ import BaseLayout from './layout/BaseLayout.vue';
 import SearchControl from './components/SearchControl.vue';
 import BusList from './components/BusList.vue';
 
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 
 const busMap = ref(null);
 const buses = ref([]);
 const currentRoute = ref('');
 const loading = ref(false);
+const serverLoading = ref(false);
+
+const routes = ref({ feederBus: [], rapidKL: [] });
+
+onMounted(() => {
+  fetchAllRoutes();
+});
+
+const fetchAllRoutes = async () => {
+  serverLoading.value = true;
+  try {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/routes`);
+    const responseData = await response.json();
+    routes.value.feederBus = responseData.feeder_bus_active_routes;
+    routes.value.rapidKL = responseData.rapid_kl_active_routes;
+
+    console.log(routes.value);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    serverLoading.value = false;
+  }
+};
 
 const setMapView = ({ latitude, longitude }) => {
   console.log('here')
@@ -39,8 +62,8 @@ const fetchLocation = async (routeId) => {
 <template>
   <BaseLayout>
     <template #top-left>
-      <div class="flex flex-col gap-4 bg-gray-400 p-6 h-full rounded-lg bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-10 hover:bg-opacity-50 transition-all duration-300">
-        <SearchControl @route-id="fetchLocation" />
+      <div v-if="!serverLoading" class="flex flex-col gap-4 bg-gray-400 p-6 h-full rounded-lg bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-10 hover:bg-opacity-50 transition-all duration-300">
+        <SearchControl :routes="routes" @route-id="fetchLocation" />
         <div v-if="currentRoute && loading" class="mt-2 animate-pulse">
           Searching for <font-awesome-icon class="text-blue-500" :icon="['fas', 'route']" /> <span class="text-blue-500">{{ currentRoute }}</span>
         </div>
@@ -52,6 +75,21 @@ const fetchLocation = async (routeId) => {
         </template>
       </div>
     </template>
-    <BusMap :buses="buses" ref="busMap" />
+    <BusMap :server-loading="serverLoading" :buses="buses" ref="busMap" />
+    <div v-if="serverLoading" class="absolute top-0 left-0 w-full h-full flex justify-center items-center text-center p-4">
+      <div class="max-w-[1280px]">
+        <div class="flex flex-col gap-4">
+          <div class="animate-pulse">
+            <div class="text-2xl font-bold">We're currently using the free tier of Render.com.</div>
+            <div class="text-xl">Please be patient while the server loads.</div>
+            <div class="text-xl">While you wait, feel free to get familiar with the UI. You can search for buses in the top-left corner.</div>
+            <div class="text-xl">You’ll be able to track your bus location soon.</div>
+          </div>
+          <div class="bg-white p-4 rounded-lg">
+            <img class="rounded-lg" src="./assets/sample-location.png" width="1000" alt="">
+          </div>
+        </div>
+      </div>
+    </div>
   </BaseLayout>
 </template>
