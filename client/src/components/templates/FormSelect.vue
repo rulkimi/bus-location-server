@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineEmits, watch, computed, useSlots } from 'vue';
+import { ref, onMounted, onBeforeUnmount, defineEmits, watch, computed, useSlots } from 'vue';
 
 const emit = defineEmits(['update:modelValue', 'change']);
 
@@ -94,6 +94,21 @@ const optionsOpen = ref(false);
 const displayValue = ref('');
 const optionsPositionClass = ref('mt-1');
 const searchQuery = ref('');
+const formSelectRef = ref(null);
+
+const handleClickOutside = event => {
+  if (formSelectRef.value && !formSelectRef.value.contains(event.target)) {
+    optionsOpen.value = false;  // Close options if clicked outside
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside);
+});
 
 // Filtered options based on search query
 const filteredOptions = computed(() => {
@@ -184,7 +199,7 @@ const updateValueByList = (value, label) => {
 </script>
 
 <template>
-  <fieldset :class="width">
+  <fieldset ref="formSelectRef" :class="width">
     <div v-if="label" class="block mb-2">
       <label
         :for="id"
