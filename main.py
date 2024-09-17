@@ -117,12 +117,10 @@ def get_routes():
         for vehicle in feeder_vehicles:
             vehicle_data = extract_vehicle_data(vehicle)
             if vehicle_data.latitude and vehicle_data.longitude:
-                # location_name = reverse_geocode(vehicle_data.latitude, vehicle_data.longitude)
                 feeder_routes.append({
                     "route_id": vehicle_data.route_id,
                     "latitude": vehicle_data.latitude,
                     "longitude": vehicle_data.longitude,
-                    # "location": location_name or "Unknown location"
                 })
 
     # Process Rapid KL buses
@@ -132,16 +130,30 @@ def get_routes():
         for vehicle in rapid_kl_vehicles:
             vehicle_data = extract_vehicle_data(vehicle)
             if vehicle_data.latitude and vehicle_data.longitude:
-                # location_name = reverse_geocode(vehicle_data.latitude, vehicle_data.longitude)
                 rapid_kl_routes.append({
                     "route_id": vehicle_data.route_id,
                     "latitude": vehicle_data.latitude,
                     "longitude": vehicle_data.longitude,
-                    # "location": location_name or "Unknown location"
                 })
 
+    # Sort the routes by alphabet and by number (custom sorting)
+    def sort_key(route):
+        # Separate alphabetic and numeric parts of the route_id for proper sorting
+        import re
+        match = re.match(r"([a-zA-Z]+)(\d+)?", route["route_id"])
+        if match:
+            alpha_part = match.group(1)
+            numeric_part = int(match.group(2)) if match.group(2) else 0
+            return (alpha_part, numeric_part)
+        return (route["route_id"], 0)  # Default in case no match
+
+    # Apply sorting
+    feeder_routes = sorted(feeder_routes, key=sort_key)
+    rapid_kl_routes = sorted(rapid_kl_routes, key=sort_key)
+
     print(f"Found {len(feeder_routes)} feeder routes and {len(rapid_kl_routes)} Rapid KL routes.")
-    # Return both lists separately
+    
+    # Return both lists separately, sorted
     return {
         "feeder_bus_active_routes": feeder_routes,
         "rapid_kl_active_routes": rapid_kl_routes
