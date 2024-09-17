@@ -35,12 +35,14 @@ class Vehicle(BaseModel):
     route_id: str
     latitude: float
     longitude: float
+    timestamp: int
 
     def to_dict(self):
         return {
             "route_id": self.route_id,
             "latitude": self.latitude,
-            "longitude": self.longitude
+            "longitude": self.longitude,
+            "timestamp": self.timestamp,
         }
 
 # Sample GTFS-R URLs
@@ -90,8 +92,9 @@ def extract_vehicle_data(vehicle):
     route_id = vehicle.get('trip', {}).get('routeId', 'N/A')
     latitude = vehicle.get('position', {}).get('latitude')
     longitude = vehicle.get('position', {}).get('longitude')
-    print(f"Extracted vehicle data: route_id={route_id}, lat={latitude}, lon={longitude}")
-    return Vehicle(route_id=route_id, latitude=latitude, longitude=longitude)
+    timestamp = vehicle.get('timestamp', 'N/A')
+    print(f"Extracted vehicle data: route_id={route_id}, lat={latitude}, lon={longitude}, timestamp={timestamp}")
+    return Vehicle(route_id=route_id, latitude=latitude, longitude=longitude, timestamp=timestamp)
 
 @app.get("/routes")
 def get_routes():
@@ -117,12 +120,11 @@ def get_routes():
         for vehicle in feeder_vehicles:
             vehicle_data = extract_vehicle_data(vehicle)
             if vehicle_data.latitude and vehicle_data.longitude:
-                # location_name = reverse_geocode(vehicle_data.latitude, vehicle_data.longitude)
                 feeder_routes.append({
                     "route_id": vehicle_data.route_id,
                     "latitude": vehicle_data.latitude,
                     "longitude": vehicle_data.longitude,
-                    # "location": location_name or "Unknown location"
+                    "timestamp": vehicle_data.timestamp,
                 })
 
     # Process Rapid KL buses
@@ -132,16 +134,45 @@ def get_routes():
         for vehicle in rapid_kl_vehicles:
             vehicle_data = extract_vehicle_data(vehicle)
             if vehicle_data.latitude and vehicle_data.longitude:
-                # location_name = reverse_geocode(vehicle_data.latitude, vehicle_data.longitude)
                 rapid_kl_routes.append({
                     "route_id": vehicle_data.route_id,
                     "latitude": vehicle_data.latitude,
                     "longitude": vehicle_data.longitude,
-                    # "location": location_name or "Unknown location"
+                    "timestamp": vehicle_data.timestamp,
                 })
 
-    print(f"Found {len(feeder_routes)} feeder routes and {len(rapid_kl_routes)} Rapid KL routes.")
-    # Return both lists separately
+    # Sort the routes by alphabet and by number (custom sorting)
+    def sort_key(route):
+        # Separate alphabetic and numeric parts of the route_id for proper sorting
+        import re
+        match = re.match(r"([a-zA-Z]+)(\d+)?", route["route_id"])
+        if match:
+            alpha_part = match.group(1)
+            numeric_part = int(match.group(2)) if match.group(2) else 0
+            return (alpha_part, numeric_part)
+        return (route["route_id"], 0)  # Default in case no match
+
+    # Apply sorting
+    feeder_routes = sorted(feeder_routes, key=sort_key)
+    rapid_kl_routes = sorted(rapid_kl_routes, key=sort_key)
+
+    # Remove duplicates by route_id
+    def remove_duplicates(routes):
+        seen_route_ids = set()
+        unique_routes = []
+        for route in routes:
+            if route["route_id"] not in seen_route_ids:
+                unique_routes.append(route)
+                seen_route_ids.add(route["route_id"])
+        return unique_routes
+
+    # Filter out duplicate routes
+    feeder_routes = remove_duplicates(feeder_routes)
+    rapid_kl_routes = remove_duplicates(rapid_kl_routes)
+
+    print(f"Found {len(feeder_routes)} unique feeder routes and {len(rapid_kl_routes)} unique Rapid KL routes.")
+    
+    # Return both lists separately, sorted and with duplicates removed
     return {
         "feeder_bus_active_routes": feeder_routes,
         "rapid_kl_active_routes": rapid_kl_routes
@@ -180,7 +211,8 @@ def get_vehicle_by_route(route_id: str):
     for vehicle in vehicles:
         vehicle_route_id = vehicle.get('trip', {}).get('routeId', 'N/A')
         if vehicle_route_id.lower() == route_id.lower():
-            print(vehicle)
+            print(f"Raw vehicle data: {vehicle}")
+
             vehicle_id = vehicle.get('vehicle', {}).get('id', 'N/A')
             latitude = vehicle.get('position', {}).get('latitude')
             longitude = vehicle.get('position', {}).get('longitude')

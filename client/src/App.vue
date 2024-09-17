@@ -1,134 +1,119 @@
-<template>
-  <div class="min-h-screen bg-gray-100 flex items-center justify-center">
-    <div class="container mx-auto px-4 py-8">
-      <!-- Available Routes List -->
-      <div class="mt-4">
-        <h1 class="text-2xl font-bold mb-4">Available Routes:</h1>
-        <div v-if="routes.feederBus.length || routes.rapidKL.length" class="flex flex-col md:flex-row flex-start gap-4">
-          <active-buses
-            id="feeder-bus"
-            label="MRT Feeder Bus"
-            :routes="routes.feederBus.map(({ route_id }) => route_id )"
-            @fetch-location="fetchLocation"
-          />
-          <active-buses
-            id="rapid-kl"
-            label="Rapid KL Bus"
-            :routes="routes.rapidKL.map(({ route_id }) => route_id )"
-            @fetch-location="fetchLocation"
-          />
-        </div>
-        <div v-else class="animate-pulse flex flex-col md:flex-row flex-start gap-4">
-          Just a moment while we set things up. The server is loading and will be ready soon. Thanks for your patience!
-        </div>
-      </div>
-
-      <div class="mt-4">
-        <h1 class="text-2xl font-bold mb-4">Bus Location</h1>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <!-- Left side (1/3 width on medium screens and larger) -->
-          <div class="md:col-span-1">
-            <div class="bg-white p-6 rounded-lg shadow-md">
-              <FormInput
-                id="search-route"
-                v-model="routeId"
-                :placeholder="routes.length ? 'Search route ID here or click from the list above' : 'Please wait for the server to load.'"
-                class="mb-4"
-                :disabled="!routes.feederBus.length && !routes.rapidKL.length"
-              ></FormInput>
-              <button
-                @click="fetchLocation(routeId)"
-                class="bg-blue-500 text-white px-4 py-2 rounded-md w-full"
-                :class="loading ? 'opacity-75' : 'hover:bg-blue-600'"
-                :disabled="loading"
-              >
-                  Search
-              </button>
-              <bus-list
-                v-if="buses"
-                :buses="buses"
-                @bus-selected="setMapView"
-                class="mt-4"
-              />
-              <div v-else-if="noBusFound" class="my-4">No bus found for route: {{ routeId.toUpperCase() }}</div>
-            </div>
-          </div>
-          <!-- Right side (2/3 width on medium screens and larger) -->
-          <div class="md:col-span-2">
-            <div class="bg-white p-6 rounded-lg shadow-md">
-              <bus-map :buses="buses" ref="busMap" class="h-96" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</template>
-
-<script>
-import ActiveBuses from './components/ActiveBuses.vue';
+<script setup>
 import BusMap from './components/BusMap.vue';
+import BaseLayout from './layout/BaseLayout.vue';
+import SearchControl from './components/SearchControl.vue';
 import BusList from './components/BusList.vue';
-import FormInput from './components/templates/FormInput.vue';
 
-export default {
-  name: 'App',
-  components: {
-    BusMap,
-    BusList,
-    ActiveBuses,
-    FormInput
-  },
-  data() {
-    return {
-      routeId: '',
-      buses: [],
-      routes: {
-        feederBus: [],
-        rapidKL: []
-      },
-      loading: false,
-      noBusFound: false
-    };
-  },
-  async mounted() {
-    await this.fetchAllRoutes();
-  },
-  methods: {
-    async fetchLocation(routeId) {
-      this.loading = true;
-      this.routeId = routeId;
-      try {
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/vehicle/${routeId}`);
-        const responseData = await response.json();
-        this.buses = responseData.vehicles;
+import { ref, onMounted } from 'vue';
 
-        if (!this.buses) this.noBusFound = true;
-      } catch (error) {
-        console.error(error);
-      } finally {
-        this.loading = false;
-      }
-    },
-    async fetchAllRoutes() {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/routes`);
-        const responseData = await response.json();
-        this.routes.feederBus = responseData.feeder_bus_active_routes;
-        this.routes.rapidKL = responseData.rapid_kl_active_routes;
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    setMapView({ latitude, longitude, vehicleId }) {
-      this.$refs.busMap.center = [latitude, longitude];
-      this.$refs.busMap.zoom = 50;
-      this.$refs.busMap.openMarkerPopup(latitude, longitude);
-    },
-    selectRoute(route) {
-      this.routeId = route; // Set the selected route to the input field
-    }
+const busMap = ref(null);
+const buses = ref([]);
+const currentRoute = ref('');
+const loading = ref(false);
+const serverLoading = ref(false);
+const isExpanded = ref(true); // State for expandable content
+
+const routes = ref({ feederBus: [], rapidKL: [] });
+
+onMounted(() => {
+  fetchAllRoutes();
+});
+
+const fetchAllRoutes = async () => {
+  serverLoading.value = true;
+  try {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/routes`);
+    const responseData = await response.json();
+    routes.value.feederBus = responseData.feeder_bus_active_routes;
+    routes.value.rapidKL = responseData.rapid_kl_active_routes;
+
+    console.log(routes.value);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    serverLoading.value = false;
   }
 };
+
+const setMapView = ({ latitude, longitude }) => {
+  console.log('here')
+  busMap.value.center = [latitude, longitude];
+  busMap.value.zoom = 50;
+  busMap.value.openMarkerPopup(latitude, longitude);
+}
+
+const fetchLocation = async (routeId) => {
+  currentRoute.value = routeId;
+  loading.value = true;
+  try {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/vehicle/${routeId}`);
+    const responseData = await response.json();
+    buses.value = responseData.vehicles;
+    setMapView(buses.value[0].latitude, buses.value[0].longitude);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    loading.value = false;
+  }
+}
+
+// Toggle expandable content
+const toggleExpand = () => {
+  isExpanded.value = !isExpanded.value;
+};
 </script>
+
+<template>
+  <BaseLayout>
+    <template #top-left>
+      <div
+        v-if="!serverLoading"
+        class="text-xs sm:text-base flex flex-col bg-gray-400 p-6 h-full rounded-lg bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-10 hover:bg-opacity-50 transition-all duration-300"
+        :class="(isExpanded && buses.length) || (loading && currentRoute) ? 'gap-4' : 'gap-0'"
+      >
+        <SearchControl
+          class="order-1 md:order-none"
+          :routes="routes"
+          @route-id="fetchLocation"
+        >
+          <template #expand-button>
+            <!-- Toggle Button -->
+            <button v-if="buses.length" @click="toggleExpand" class="text-gray-400 cursor-pointer hover:scale-110 transition-all duration-300">
+              <font-awesome-icon v-if="isExpanded" :icon="['fas', 'compress']" />
+              <font-awesome-icon v-else :icon="['fas', 'expand']" />
+            </button>
+          </template>
+        </SearchControl>
+      
+        <!-- Transition for Expand/Collapse -->
+        <div>
+          <div v-if="currentRoute && loading" class="animate-pulse">
+            Searching for <font-awesome-icon class="text-blue-500" :icon="['fas', 'route']" /> <span class="text-blue-500">{{ currentRoute }}</span> buses...
+          </div>
+          <template v-if="!loading && isExpanded">
+            <div v-if="currentRoute" class="mb-4">
+              <font-awesome-icon class="text-blue-500" :icon="['fas', 'route']" /> <span class="text-blue-500">{{ currentRoute }}</span> {{ buses.length > 1 ? 'buses' : 'bus' }}:
+            </div>
+            <BusList v-if="buses.length" :buses="buses" @bus-selected="setMapView" />
+          </template>
+        </div>
+      </div>
+    </template>
+    <BusMap :server-loading="serverLoading" :buses="buses" ref="busMap" />
+    <div v-if="serverLoading" class="absolute top-0 left-0 w-full h-full flex justify-center items-center text-center p-4">
+      <div class="max-w-[1280px]">
+        <div class="flex flex-col gap-4">
+          <div class="animate-pulse">
+            <div class="text-xl md:text-2xl font-bold">We're currently using the free tier of Render.com.</div>
+            <div class="text-lg md:text-xl">Please be patient while the server loads.</div>
+            <div class="text-lg md:text-xl hidden md:block">While you wait, feel free to get familiar with the UI. You can search for buses in the top-left corner.</div>
+            <div class="text-lg md:text-xl">You’ll be able to track your bus location soon.</div>
+          </div>
+          <div class="bg-white p-4 rounded-lg hidden md:block">
+            <img class="rounded-lg" src="./assets/sample-location.png" width="1000" alt="">
+          </div>
+        </div>
+      </div>
+    </div>
+  </BaseLayout>
+</template>
