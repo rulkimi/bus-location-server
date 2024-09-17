@@ -63,11 +63,11 @@ const fetchLocation = async (routeId) => {
   <BaseLayout>
     <template #top-left>
       <div v-if="!serverLoading" class="text-xs sm:text-base flex flex-col gap-4 bg-gray-400 p-6 h-full rounded-lg bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-10 hover:bg-opacity-50 transition-all duration-300">
-        <SearchControl :routes="routes" @route-id="fetchLocation" />
-        <div v-if="currentRoute && loading" class="mt-2 animate-pulse">
+        <SearchControl class="order-1 md:order-none" :routes="routes" @route-id="fetchLocation" />
+        <div v-if="currentRoute && loading" class="animate-pulse">
           Searching for <font-awesome-icon class="text-blue-500" :icon="['fas', 'route']" /> <span class="text-blue-500">{{ currentRoute }}</span>
         </div>
-        <template v-if="!loading">
+        <template  v-if="!loading">
           <div v-if="currentRoute" class="mt-2">
             <font-awesome-icon class="text-blue-500" :icon="['fas', 'route']" /> <span class="text-blue-500">{{ currentRoute }}</span> {{ buses.length > 1 ? 'buses' : 'bus' }}:
           </div>
