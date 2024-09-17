@@ -29,7 +29,7 @@ const handleClick = (latitude, longitude, vehicleId) => {
       @click="handleClick(bus.latitude, bus.longitude, bus.vehicle_id)"
       :class="[ 
         'bg-white shadow-md rounded-lg mb-2 px-4 py-3 cursor-pointer border-2 border-transparent hover:border-blue-500 flex flex-col gap-2',
-        { 'bg-blue-50 !border-blue-500': bus.vehicle_id === selectedBus }
+        { '!bg-blue-50 !border-blue-500': bus.vehicle_id === selectedBus }
       ]"
     >
       

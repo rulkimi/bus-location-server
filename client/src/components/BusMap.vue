@@ -13,9 +13,9 @@
       ref="markers"
     >
       <l-popup>
-        <div class="py-2 flex flex-col gap-2 text-lg">
+        <div class="py-2 flex flex-col gap-2 text-base md:text-lg">
           <!-- Vehicle ID -->
-          <div class="flex justify-between text-sm text-gray-400">
+          <div class="flex justify-between text-xs md:text-sm text-gray-400">
             <div class="flex items-center gap-2">
               <!-- <font-awesome-icon class="text-blue-500" :icon="['fas', 'bus-simple']" /> -->
               <span>{{ bus.route_id }} ({{ bus.vehicle_id }})</span>
@@ -48,10 +48,8 @@
               </div>
               <span>Waze</span>
             </div>
-            <div class="flex items-center gap-2 cursor-pointer hover:underline" @click="openGoogleMap(bus.latitude, bus.longitude)">
-              <div>
-                <img src="../assets/google-map.png" width="12" alt="">
-              </div>
+            <div class="flex items-center gap-2 cursor-pointer hover:underline text-nowrap" @click="openGoogleMap(bus.latitude, bus.longitude)">
+              <img src="../assets/google-map.png" width="12" alt="">
               <span>Google Maps</span>
             </div>
           </div>

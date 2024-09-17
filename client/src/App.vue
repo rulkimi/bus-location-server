@@ -88,7 +88,7 @@ const toggleExpand = () => {
         <!-- Transition for Expand/Collapse -->
         <div>
           <div v-if="currentRoute && loading" class="animate-pulse">
-            Searching for <font-awesome-icon class="text-blue-500" :icon="['fas', 'route']" /> <span class="text-blue-500">{{ currentRoute }}</span>
+            Searching for <font-awesome-icon class="text-blue-500" :icon="['fas', 'route']" /> <span class="text-blue-500">{{ currentRoute }}</span> buses...
           </div>
           <template v-if="!loading && isExpanded">
             <div v-if="currentRoute" class="mb-4">
