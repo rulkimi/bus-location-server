@@ -63,7 +63,7 @@ const setSelectedBusType = (busType) => {
     <!-- Bus route dropdown based on selected type -->
     <FormSelect
       searchable
-      v-if="selectedBusType === 'feederBus' && routes.feederBus.length"
+      v-if="selectedBusType === 'feederBus'"
       id="search-bus"
       placeholder="Search for MRT Feeder Bus"
       :options="routes.feederBus.map(({ route_id }) => route_id)"
@@ -72,7 +72,7 @@ const setSelectedBusType = (busType) => {
 
     <FormSelect
       searchable
-      v-if="selectedBusType === 'rapidKL' && routes.rapidKL.length"
+      v-if="selectedBusType === 'rapidKL'"
       id="search-bus"
       placeholder="Search for Rapid KL Bus"
       :options="routes.rapidKL.map(({ route_id }) => route_id)"
