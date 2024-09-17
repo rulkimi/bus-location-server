@@ -151,9 +151,23 @@ def get_routes():
     feeder_routes = sorted(feeder_routes, key=sort_key)
     rapid_kl_routes = sorted(rapid_kl_routes, key=sort_key)
 
-    print(f"Found {len(feeder_routes)} feeder routes and {len(rapid_kl_routes)} Rapid KL routes.")
+    # Remove duplicates by route_id
+    def remove_duplicates(routes):
+        seen_route_ids = set()
+        unique_routes = []
+        for route in routes:
+            if route["route_id"] not in seen_route_ids:
+                unique_routes.append(route)
+                seen_route_ids.add(route["route_id"])
+        return unique_routes
+
+    # Filter out duplicate routes
+    feeder_routes = remove_duplicates(feeder_routes)
+    rapid_kl_routes = remove_duplicates(rapid_kl_routes)
+
+    print(f"Found {len(feeder_routes)} unique feeder routes and {len(rapid_kl_routes)} unique Rapid KL routes.")
     
-    # Return both lists separately, sorted
+    # Return both lists separately, sorted and with duplicates removed
     return {
         "feeder_bus_active_routes": feeder_routes,
         "rapid_kl_active_routes": rapid_kl_routes
