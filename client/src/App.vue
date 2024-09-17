@@ -37,7 +37,7 @@ const fetchLocation = async routeId => {
     <template #top-left>
       <div class="flex flex-col gap-6 bg-gray-400 p-6 h-full rounded-lg bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-10 hover:bg-opacity-50 transition-all duration-300">
         <SearchControl @route-id="fetchLocation" />
-        <BusList :buses="buses" @bus-selected="setMapView" />
+        <BusList v-if="buses.length" :buses="buses" @bus-selected="setMapView" />
       </div>
     </template>
     <BusMap :buses="buses" ref="busMap" />
