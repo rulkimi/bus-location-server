@@ -106,10 +106,10 @@ const toggleExpand = () => {
           <div class="animate-pulse">
             <div class="text-xl md:text-2xl font-bold">We're currently using the free tier of Render.com.</div>
             <div class="text-lg md:text-xl">Please be patient while the server loads.</div>
-            <div class="text-lg md:text-xl">While you wait, feel free to get familiar with the UI. You can search for buses in the top-left corner.</div>
+            <div class="text-lg md:text-xl hidden md:block">While you wait, feel free to get familiar with the UI. You can search for buses in the top-left corner.</div>
             <div class="text-lg md:text-xl">You’ll be able to track your bus location soon.</div>
           </div>
-          <div class="bg-white p-4 rounded-lg">
+          <div class="bg-white p-4 rounded-lg hidden md:block">
             <img class="rounded-lg" src="./assets/sample-location.png" width="1000" alt="">
           </div>
         </div>
