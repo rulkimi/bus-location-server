@@ -46,7 +46,7 @@ const fetchLocation = async (routeId) => {
         </div>
         <template v-if="!loading">
           <div v-if="currentRoute" class="mt-2">
-            <font-awesome-icon class="text-blue-500" :icon="['fas', 'route']" /> <span class="text-blue-500">{{ currentRoute }}</span> Buses:
+            <font-awesome-icon class="text-blue-500" :icon="['fas', 'route']" /> <span class="text-blue-500">{{ currentRoute }}</span> {{ buses.length > 1 ? 'buses' : 'bus' }}:
           </div>
           <BusList v-if="buses.length" :buses="buses" @bus-selected="setMapView" />
         </template>
