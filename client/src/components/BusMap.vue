@@ -4,6 +4,7 @@
     :zoom="zoom"
     :center="center"
     :style="mapStyle"
+    :options="{ zoomControl: false }"
   >
     <l-tile-layer :url="url" :attribution="attribution" />
     <l-marker
