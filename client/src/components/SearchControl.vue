@@ -24,25 +24,30 @@ const setSelectedBusType = (busType) => {
 <template>
   <div>
     <!-- Radio buttons to select bus type -->
-    <div class="mb-4 flex space-x-4">
-      <label class="flex items-center space-x-2">
-        <input
-          type="radio"
-          value="feederBus"
-          v-model="selectedBusType"
-          class="text-blue-600 focus:ring-blue-500"
-        />
-        <span>MRT Feeder Bus</span>
-      </label>
-      <label class="flex items-center space-x-2">
-        <input
-          type="radio"
-          value="rapidKL"
-          v-model="selectedBusType"
-          class="text-blue-600 focus:ring-blue-500"
-        />
-        <span>Rapid KL</span>
-      </label>
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center space-x-4">
+        <label class="flex items-center space-x-2">
+          <input
+            type="radio"
+            value="feederBus"
+            v-model="selectedBusType"
+            class="text-blue-600 focus:ring-blue-500"
+          />
+          <span>MRT Feeder Bus</span>
+        </label>
+        <label class="flex items-center space-x-2">
+          <input
+            type="radio"
+            value="rapidKL"
+            v-model="selectedBusType"
+            class="text-blue-600 focus:ring-blue-500"
+          />
+          <span>Rapid KL</span>
+        </label>
+      </div>
+      <div class="absolute top-6 right-6">
+        <slot name="expand-button"></slot>
+      </div>
     </div>
 
     <!-- Bus route dropdown based on selected type -->

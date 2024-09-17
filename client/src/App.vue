@@ -11,6 +11,7 @@ const buses = ref([]);
 const currentRoute = ref('');
 const loading = ref(false);
 const serverLoading = ref(false);
+const isExpanded = ref(true); // State for expandable content
 
 const routes = ref({ feederBus: [], rapidKL: [] });
 
@@ -48,31 +49,54 @@ const fetchLocation = async (routeId) => {
     const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/vehicle/${routeId}`);
     const responseData = await response.json();
     buses.value = responseData.vehicles;
-    setMapView(buses.value[0].latitude, buses.value[0].longitude)
-
-    // if (!this.buses) this.noBusFound = true;
+    setMapView(buses.value[0].latitude, buses.value[0].longitude);
   } catch (error) {
     console.error(error);
   } finally {
     loading.value = false;
   }
 }
+
+// Toggle expandable content
+const toggleExpand = () => {
+  isExpanded.value = !isExpanded.value;
+};
 </script>
 
 <template>
   <BaseLayout>
     <template #top-left>
-      <div v-if="!serverLoading" class="text-xs sm:text-base flex flex-col gap-4 bg-gray-400 p-6 h-full rounded-lg bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-10 hover:bg-opacity-50 transition-all duration-300">
-        <SearchControl class="order-1 md:order-none" :routes="routes" @route-id="fetchLocation" />
-        <div v-if="currentRoute && loading" class="animate-pulse">
-          Searching for <font-awesome-icon class="text-blue-500" :icon="['fas', 'route']" /> <span class="text-blue-500">{{ currentRoute }}</span>
-        </div>
-        <template  v-if="!loading">
-          <div v-if="currentRoute" class="mt-2">
-            <font-awesome-icon class="text-blue-500" :icon="['fas', 'route']" /> <span class="text-blue-500">{{ currentRoute }}</span> {{ buses.length > 1 ? 'buses' : 'bus' }}:
+      <div
+        v-if="!serverLoading"
+        class="text-xs sm:text-base flex flex-col bg-gray-400 p-6 h-full rounded-lg bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-10 hover:bg-opacity-50 transition-all duration-300"
+        :class="(isExpanded && buses.length) || (loading && currentRoute) ? 'gap-4' : 'gap-0'"
+      >
+        <SearchControl
+          class="order-1 md:order-none"
+          :routes="routes"
+          @route-id="fetchLocation"
+        >
+          <template #expand-button>
+            <!-- Toggle Button -->
+            <button v-if="buses.length" @click="toggleExpand" class="text-gray-400 cursor-pointer hover:scale-110 transition-all duration-300">
+              <font-awesome-icon v-if="isExpanded" :icon="['fas', 'compress']" />
+              <font-awesome-icon v-else :icon="['fas', 'expand']" />
+            </button>
+          </template>
+        </SearchControl>
+      
+        <!-- Transition for Expand/Collapse -->
+        <div>
+          <div v-if="currentRoute && loading" class="animate-pulse">
+            Searching for <font-awesome-icon class="text-blue-500" :icon="['fas', 'route']" /> <span class="text-blue-500">{{ currentRoute }}</span>
           </div>
-          <BusList v-if="buses.length" :buses="buses" @bus-selected="setMapView" />
-        </template>
+          <template v-if="!loading && isExpanded">
+            <div v-if="currentRoute" class="mb-4">
+              <font-awesome-icon class="text-blue-500" :icon="['fas', 'route']" /> <span class="text-blue-500">{{ currentRoute }}</span> {{ buses.length > 1 ? 'buses' : 'bus' }}:
+            </div>
+            <BusList v-if="buses.length" :buses="buses" @bus-selected="setMapView" />
+          </template>
+        </div>
       </div>
     </template>
     <BusMap :server-loading="serverLoading" :buses="buses" ref="busMap" />
