@@ -207,6 +207,7 @@ const updateValueByList = (value, label) => {
       <div v-if="!readonly" class="relative w-full">
         <div v-if="props.searchable" class="relative w-full">
           <input
+            :id="id + '-select-search'"
             type="text"
             v-model="searchQuery"
             :placeholder="placeholder"

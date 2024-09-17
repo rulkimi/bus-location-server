@@ -26,8 +26,9 @@ const setSelectedBusType = (busType) => {
     <!-- Radio buttons to select bus type -->
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center space-x-4">
-        <label class="flex items-center space-x-2">
+        <label for="mrt-feeder-bus" class="flex items-center space-x-2">
           <input
+            id="mrt-feeder-bus"
             type="radio"
             value="feederBus"
             v-model="selectedBusType"
@@ -35,8 +36,9 @@ const setSelectedBusType = (busType) => {
           />
           <span>MRT Feeder Bus</span>
         </label>
-        <label class="flex items-center space-x-2">
+        <label for="rapid-kl" class="flex items-center space-x-2">
           <input
+            id="rapid-kl"
             type="radio"
             value="rapidKL"
             v-model="selectedBusType"
