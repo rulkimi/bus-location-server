@@ -62,6 +62,7 @@ const setSelectedBusType = (busType) => {
 
     <!-- Bus route dropdown based on selected type -->
     <FormSelect
+      searchable
       v-if="selectedBusType === 'feederBus' && routes.feederBus.length"
       id="search-bus"
       placeholder="Search for MRT Feeder Bus"
@@ -70,6 +71,7 @@ const setSelectedBusType = (busType) => {
     />
 
     <FormSelect
+      searchable
       v-if="selectedBusType === 'rapidKL' && routes.rapidKL.length"
       id="search-bus"
       placeholder="Search for Rapid KL Bus"

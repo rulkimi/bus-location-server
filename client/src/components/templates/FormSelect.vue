@@ -83,12 +83,28 @@ const props = defineProps({
   suffixDisplayValue: {
     type: String,
     default: null
+  },
+  searchable: {
+    type: Boolean,
+    default: false
   }
 });
 
 const optionsOpen = ref(false);
 const displayValue = ref('');
 const optionsPositionClass = ref('mt-1');
+const searchQuery = ref('');
+
+// Filtered options based on search query
+const filteredOptions = computed(() => {
+  if (!props.searchable || !searchQuery.value) {
+    return props.options;
+  }
+  return props.options.filter(option => {
+    const label = props.optionLabel ? option[props.optionLabel] : option;
+    return label.toLowerCase().includes(searchQuery.value.toLowerCase());
+  });
+});
 
 watch(
   () => props.modelValue,
@@ -108,15 +124,15 @@ watch(
 const slots = useSlots();
 
 const hasPrependIcon = computed(() => {
-  return slots['prepend-icon'];
+  return !!slots['prepend-icon'];
 });
 
 const hasAppendIcon = computed(() => {
-  return slots['append-icon'];
+  return !!slots['append-icon'];
 });
 
 const baseInputStyles = computed(() => {
-  return [props.inputClass, props.width]
+  return [props.inputClass, props.width];
 });
 
 const conditionalInputStyles = computed(() => {
@@ -126,8 +142,8 @@ const conditionalInputStyles = computed(() => {
     'opacity-50 cursor-not-allowed': props.disabled,
     'border-b break-words !bg-transparent': props.readonly,
     'rounded-lg px-3': !props.readonly,
-    'pl-10': props.hasPrependIcon,
-    'pr-10': props.hasAppendIcon,
+    'pl-10': hasPrependIcon.value,
+    'pr-10': hasAppendIcon.value,
   };
 });
 
@@ -143,7 +159,7 @@ const setOptionsPosition = event => {
   const spaceAbove = buttonRect.top;
   const spaceBelow = window.innerHeight - buttonRect.bottom;
 
-  const requiredSpace = (props.options.length || 1 ) * 50 + 10;
+  const requiredSpace = (filteredOptions.value.length || 1) * 50 + 10;
 
   if (spaceBelow < requiredSpace && spaceAbove > spaceBelow) {
     optionsPositionClass.value = 'mb-1 bottom-full';
@@ -186,51 +202,88 @@ const updateValueByList = (value, label) => {
       <div v-if="hasAppendIcon" class="absolute right-3 text-gray-500 z-10">
         <slot name="append-icon"></slot>
       </div>
+
+      <!-- If the field is searchable, replace button with search input -->
       <div v-if="!readonly" class="relative w-full">
+        <div v-if="props.searchable" class="relative w-full">
+          <input
+            type="text"
+            v-model="searchQuery"
+            :placeholder="placeholder"
+            @click="toggleOptions"
+            class="rounded-lg block py-3 h-[40px] px-3 flex items-center bg-white outline-none"
+            :class="[baseInputStyles, conditionalInputStyles]"
+            :disabled="disabled"
+          />
+
+          <transition name="dropdown-fade">
+            <div
+              v-if="optionsOpen"
+              class="absolute bg-white border shadow-lg w-full z-10 rounded-lg max-h-[200px] overflow-auto"
+              :class="optionsPositionClass"
+            >
+              <div v-if="filteredOptions.length === 0" class="p-3 h-[40px] flex justify-center items-center text-gray-500">
+                {{ noOptionsMessage }}
+              </div>
+              <div
+                v-else
+                v-for="(option, index) in filteredOptions"
+                :key="optionValue ? option[optionValue] : option"
+                class="p-3 h-[40px] cursor-pointer hover:bg-gray-200 flex justify-between items-center"
+                @click="updateValueByList(optionValue ? option[optionValue] : option, optionLabel ? option[optionLabel] : option)"
+                :class="{
+                  'rounded-t-lg': index === 0,
+                  'rounded-b-lg': index === filteredOptions.length - 1
+                }"
+              >
+                <span class="text-black">{{ optionLabel ? option[optionLabel] : option }}</span>
+              </div>
+            </div>
+          </transition>
+        </div>
+
+        <!-- If not searchable, show the normal button -->
         <button
+          v-else
           @click="toggleOptions"
           :id="id"
           class="rounded-lg block py-3 h-[40px] flex justify-between items-center bg-white"
-          :class="[
-            baseInputStyles,
-            conditionalInputStyles,
-          ]"
+          :class="[baseInputStyles, conditionalInputStyles]"
           :disabled="disabled"
         >
           <div class="text-start truncate mt-1">
             <span v-if="displayValue">
               <span v-if="props.prefixDisplayValue">{{ props.prefixDisplayValue }}</span>
               <span class="text-black">{{ displayValue }}</span>
-              <span v-if="props.suffixDisplayValue">suffixDisplayValue</span>
+              <span v-if="props.suffixDisplayValue">{{ props.suffixDisplayValue }}</span>
             </span>
             <span v-else class="text-gray-400">{{ placeholder }}</span>
           </div>
           <font-awesome-icon
             :icon="['fas', 'chevron-down']"
             class="transition-transform duration-200 text-black"
-            :class="{
-              'rotate-180': optionsOpen
-            }"
+            :class="{ 'rotate-180': optionsOpen }"
           />
         </button>
+
         <transition name="dropdown-fade">
           <div
-            v-if="optionsOpen"
+            v-if="optionsOpen && !props.searchable"
             class="absolute bg-white border shadow-lg w-full z-10 rounded-lg max-h-[200px] overflow-auto"
             :class="optionsPositionClass"
           >
-            <div v-if="props.options.length === 0" class="p-3 h-[40px] flex justify-center items-center text-gray-500">
+            <div v-if="filteredOptions.length === 0" class="p-3 h-[40px] flex justify-center items-center text-gray-500">
               {{ noOptionsMessage }}
             </div>
             <div
               v-else
-              v-for="(option, index) in props.options"
+              v-for="(option, index) in filteredOptions"
               :key="optionValue ? option[optionValue] : option"
               class="p-3 h-[40px] cursor-pointer hover:bg-gray-200 flex justify-between items-center"
               @click="updateValueByList(optionValue ? option[optionValue] : option, optionLabel ? option[optionLabel] : option)"
               :class="{
                 'rounded-t-lg': index === 0, 
-                'rounded-b-lg': index === options.length - 1
+                'rounded-b-lg': index === filteredOptions.length - 1
               }"
             >
               <span class="text-black">{{ optionLabel ? option[optionLabel] : option }}</span>
@@ -238,24 +291,23 @@ const updateValueByList = (value, label) => {
           </div>
         </transition>
       </div>
+
       <input
         v-else
         :id="id"
         v-model="displayValue"
         class="block py-3 h-[40px] outline-none"
-        :class="[
-          baseInputStyles,
-          conditionalInputStyles
-        ]"
+        :class="[baseInputStyles, conditionalInputStyles]"
         readonly
         :disabled="disabled"
       >
     </div>
+
     <transition name="shake-fade">
       <small
         v-if="errorMessage"
         class="block text-red-400"
-        :class="{ 'opacity-50' : disabled }"
+        :class="{ 'opacity-50': disabled }"
       >
         {{ errorMessage }}
       </small>
