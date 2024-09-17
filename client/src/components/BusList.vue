@@ -37,7 +37,7 @@ const handleClick = (latitude, longitude, vehicleId) => {
       <div class="flex justify-between">
         <div class="flex gap-2 items-center">
           <font-awesome-icon class="text-blue-500" :icon="['fas', 'bus-simple']" />
-          <div class="text-lg font-semibold">
+          <div class="text-xs md:text-lg font-semibold">
             {{ bus.vehicle_id }}
           </div>
         </div>
