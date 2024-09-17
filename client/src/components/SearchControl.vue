@@ -32,12 +32,11 @@ const getRouteId = routeId => {
 </script>
 
 <template>
-  <div class="bg-gray-400 p-6 h-full rounded-lg bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-10 hover:bg-opacity-50 transition-all duration-300">
+  <div class="">
     <FormSelect
       v-if="routes.feederBus"
       id="search-bus"
       placeholder="Search for Bus"
-      input-class="w-[200px]"
       :options="routes.feederBus.map(({ route_id }) => route_id )"
       @change="getRouteId"
     />

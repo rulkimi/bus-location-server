@@ -2,6 +2,7 @@
 import BusMap from './components/BusMap.vue';
 import BaseLayout from './layout/BaseLayout.vue';
 import SearchControl from './components/SearchControl.vue';
+import BusList from './components/BusList.vue';
 
 import { ref } from 'vue';
 
@@ -9,6 +10,7 @@ const busMap = ref(null);
 const buses = ref([]);
 
 const setMapView = ({ latitude, longitude }) => {
+  console.log('here')
   busMap.value.center = [latitude, longitude];
   busMap.value.zoom = 50;
   busMap.value.openMarkerPopup(latitude, longitude);
@@ -33,7 +35,10 @@ const fetchLocation = async routeId => {
 <template>
   <BaseLayout>
     <template #top-left>
-      <SearchControl @route-id="fetchLocation" />
+      <div class="flex flex-col gap-6 bg-gray-400 p-6 h-full rounded-lg bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-10 hover:bg-opacity-50 transition-all duration-300">
+        <SearchControl @route-id="fetchLocation" />
+        <BusList :buses="buses" @bus-selected="setMapView" />
+      </div>
     </template>
     <BusMap :buses="buses" ref="busMap" />
   </BaseLayout>
