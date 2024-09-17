@@ -47,7 +47,7 @@
               <div>
                 <img src="../assets/google-map.png" width="12" alt="">
               </div>
-              <span>Google Map</span>
+              <span>Google Maps</span>
             </div>
           </div>
         </div>
