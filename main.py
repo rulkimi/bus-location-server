@@ -35,12 +35,14 @@ class Vehicle(BaseModel):
     route_id: str
     latitude: float
     longitude: float
+    timestamp: int
 
     def to_dict(self):
         return {
             "route_id": self.route_id,
             "latitude": self.latitude,
-            "longitude": self.longitude
+            "longitude": self.longitude,
+            "timestamp": self.timestamp,
         }
 
 # Sample GTFS-R URLs
@@ -90,8 +92,9 @@ def extract_vehicle_data(vehicle):
     route_id = vehicle.get('trip', {}).get('routeId', 'N/A')
     latitude = vehicle.get('position', {}).get('latitude')
     longitude = vehicle.get('position', {}).get('longitude')
-    print(f"Extracted vehicle data: route_id={route_id}, lat={latitude}, lon={longitude}")
-    return Vehicle(route_id=route_id, latitude=latitude, longitude=longitude)
+    timestamp = vehicle.get('timestamp', 'N/A')
+    print(f"Extracted vehicle data: route_id={route_id}, lat={latitude}, lon={longitude}, timestamp={timestamp}")
+    return Vehicle(route_id=route_id, latitude=latitude, longitude=longitude, timestamp=timestamp)
 
 @app.get("/routes")
 def get_routes():
@@ -121,6 +124,7 @@ def get_routes():
                     "route_id": vehicle_data.route_id,
                     "latitude": vehicle_data.latitude,
                     "longitude": vehicle_data.longitude,
+                    "timestamp": vehicle_data.timestamp,
                 })
 
     # Process Rapid KL buses
@@ -134,6 +138,7 @@ def get_routes():
                     "route_id": vehicle_data.route_id,
                     "latitude": vehicle_data.latitude,
                     "longitude": vehicle_data.longitude,
+                    "timestamp": vehicle_data.timestamp,
                 })
 
     # Sort the routes by alphabet and by number (custom sorting)
@@ -206,7 +211,8 @@ def get_vehicle_by_route(route_id: str):
     for vehicle in vehicles:
         vehicle_route_id = vehicle.get('trip', {}).get('routeId', 'N/A')
         if vehicle_route_id.lower() == route_id.lower():
-            print(vehicle)
+            print(f"Raw vehicle data: {vehicle}")
+
             vehicle_id = vehicle.get('vehicle', {}).get('id', 'N/A')
             latitude = vehicle.get('position', {}).get('latitude')
             longitude = vehicle.get('position', {}).get('longitude')
