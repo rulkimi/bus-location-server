@@ -1,4 +1,6 @@
 from fastapi import APIRouter, HTTPException
+from google.transit import gtfs_realtime_pb2
+from google.protobuf.json_format import MessageToDict
 from app.utils import fetch_gtfs_realtime_feed, process_feed, extract_vehicle_data, reverse_geocode
 
 router = APIRouter()
