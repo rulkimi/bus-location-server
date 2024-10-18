@@ -40,19 +40,16 @@ def get_vehicle_by_route(route_id: str):
     rapid_kl_content = fetch_gtfs_realtime_feed(RAPID_KL_URL)
 
     if not feeder_bus_content and not rapid_kl_content:
-        print("Failed to fetch any bus feeds.")
         raise HTTPException(status_code=500, detail="Failed to fetch bus data.")
 
     vehicles = []
 
     if feeder_bus_content:
-        print("Processing feeder bus vehicles")
         feeder_feed = gtfs_realtime_pb2.FeedMessage()
         feeder_feed.ParseFromString(feeder_bus_content)
         vehicles.extend([MessageToDict(entity.vehicle) for entity in feeder_feed.entity])
 
     if rapid_kl_content:
-        print("Processing Rapid KL vehicles")
         rapid_kl_feed = gtfs_realtime_pb2.FeedMessage()
         rapid_kl_feed.ParseFromString(rapid_kl_content)
         vehicles.extend([MessageToDict(entity.vehicle) for entity in rapid_kl_feed.entity])
@@ -61,8 +58,6 @@ def get_vehicle_by_route(route_id: str):
     for vehicle in vehicles:
         vehicle_route_id = vehicle.get('trip', {}).get('routeId', 'N/A')
         if vehicle_route_id.lower() == route_id.lower():
-            print(f"Raw vehicle data: {vehicle}")
-
             vehicle_id = vehicle.get('vehicle', {}).get('id', 'N/A')
             latitude = vehicle.get('position', {}).get('latitude')
             longitude = vehicle.get('position', {}).get('longitude')
@@ -80,7 +75,6 @@ def get_vehicle_by_route(route_id: str):
                 })
 
     if not vehicles_on_route:
-        print(f"No vehicles found on route: {route_id}")
         raise HTTPException(status_code=404, detail="No bus found for the specified route.")
 
     print(f"Found {len(vehicles_on_route)} vehicles on route: {route_id}")
