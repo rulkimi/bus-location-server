@@ -1,102 +1,18 @@
-import os
-from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from google.transit import gtfs_realtime_pb2
-from google.protobuf.json_format import MessageToDict
-from requests import get
-from geopy.geocoders import Nominatim
-from geopy.exc import GeocoderTimedOut, GeocoderServiceError
-import time
-from requests.exceptions import RequestException
+from fastapi import APIRouter, HTTPException
+from app.utils import fetch_gtfs_realtime_feed, process_feed, extract_vehicle_data, reverse_geocode
 
-load_dotenv()
-
-USER_AGENT = os.getenv('EMAIL')
-
-app = FastAPI()
-
-origins = [
-    "http://localhost:5173", 
-    "http://127.0.0.1:5173",
-    "https://rulkimi.github.io",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-class Vehicle(BaseModel):
-    route_id: str
-    latitude: float
-    longitude: float
-    timestamp: int
-
-    def to_dict(self):
-        return {
-            "route_id": self.route_id,
-            "latitude": self.latitude,
-            "longitude": self.longitude,
-            "timestamp": self.timestamp,
-        }
+router = APIRouter()
 
 # Sample GTFS-R URLs
 FEEDER_BUS_URL = 'https://api.data.gov.my/gtfs-realtime/vehicle-position/prasarana?category=rapid-bus-mrtfeeder'
 RAPID_KL_URL = 'https://api.data.gov.my/gtfs-realtime/vehicle-position/prasarana?category=rapid-bus-kl'
 
-def fetch_gtfs_realtime_feed(url):
-    retries = 5
-    for attempt in range(retries):
-        try:
-            print(f"Fetching GTFS feed from {url}, attempt {attempt + 1}")
-            response = get(url)
-            response.raise_for_status()
-            print(f"Successfully fetched GTFS feed from {url}")
-            return response.content
-        except RequestException as e:
-            print(f"Error fetching GTFS Realtime feed: {e}")
-            time.sleep(5)
-    print(f"Failed to fetch GTFS feed after {retries} attempts.")
-    return None
-
-def reverse_geocode(lat, lon):
-    try:
-        print(f"Reverse geocoding coordinates: lat={lat}, lon={lon}")
-        geolocator = Nominatim(user_agent='azruldauntless@gmail.com')
-        location = geolocator.reverse((lat, lon), exactly_one=True)
-        if location:
-            print(f"Reverse geocoded location: {location.address}")
-        return location.address if location else None
-    except (GeocoderTimedOut, GeocoderServiceError) as e:
-        print(f"Error in reverse geocoding: {e}")
-        return None
-
-@app.get("/")
+@router.get("/")
 def read_root():
     return {"message": "Welcome to the Bus Location API"}
 
-def process_feed(content):
-    print("Processing GTFS feed content")
-    feed = gtfs_realtime_pb2.FeedMessage()
-    feed.ParseFromString(content)
-    vehicles = [MessageToDict(entity.vehicle) for entity in feed.entity]
-    print(f"Processed {len(vehicles)} vehicles from feed")
-    return vehicles
 
-def extract_vehicle_data(vehicle):
-    route_id = vehicle.get('trip', {}).get('routeId', 'N/A')
-    latitude = vehicle.get('position', {}).get('latitude')
-    longitude = vehicle.get('position', {}).get('longitude')
-    timestamp = vehicle.get('timestamp', 'N/A')
-    print(f"Extracted vehicle data: route_id={route_id}, lat={latitude}, lon={longitude}, timestamp={timestamp}")
-    return Vehicle(route_id=route_id, latitude=latitude, longitude=longitude, timestamp=timestamp)
-
-@app.get("/routes")
+@router.get("/routes")
 def get_routes():
     print("Fetching feeder bus and Rapid KL bus feeds")
     
@@ -178,7 +94,7 @@ def get_routes():
         "rapid_kl_active_routes": rapid_kl_routes
     }
 
-@app.get("/vehicle/{route_id}")
+@router.get("/vehicle/{route_id}")
 def get_vehicle_by_route(route_id: str):
     print(f"Searching for vehicles on route: {route_id}")
     
