@@ -66,26 +66,29 @@ const toggleExpand = () => {
 <template>
   <BaseLayout>
     <template #top-left>
-      <div
+      <section
         v-if="!serverLoading"
         class="text-xs sm:text-base flex flex-col bg-gray-400 p-6 h-full rounded-lg bg-clip-padding backdrop-filter backdrop-blur-sm bg-opacity-10 hover:bg-opacity-50 transition-all duration-300"
         :class="(isExpanded && buses.length) || (loading && currentRoute) ? 'gap-4' : 'gap-0'"
       >
+      
         <SearchControl
           class="order-1 md:order-none"
           :routes="routes"
           @route-id="fetchLocation"
         >
           <template #expand-button>
-            <!-- Toggle Button -->
-            <button v-if="buses.length" @click="toggleExpand" class="text-gray-400 cursor-pointer hover:scale-110 transition-all duration-300">
+            <button
+              v-if="buses.length"
+              class="text-gray-400 cursor-pointer hover:scale-110 transition-all duration-300"
+              @click="toggleExpand"
+            >
               <font-awesome-icon v-if="isExpanded" :icon="['fas', 'compress']" />
               <font-awesome-icon v-else :icon="['fas', 'expand']" />
             </button>
           </template>
         </SearchControl>
       
-        <!-- Transition for Expand/Collapse -->
         <div>
           <div v-if="currentRoute && loading" class="animate-pulse">
             Searching for <font-awesome-icon class="text-blue-500" :icon="['fas', 'route']" /> <span class="text-blue-500">{{ currentRoute }}</span> buses...
@@ -97,23 +100,31 @@ const toggleExpand = () => {
             <BusList v-if="buses.length" :buses="buses" @bus-selected="setMapView" />
           </template>
         </div>
-      </div>
+
+      </section>
     </template>
+
     <BusMap :server-loading="serverLoading" :buses="buses" ref="busMap" />
-    <div v-if="serverLoading" class="absolute top-0 left-0 w-full h-full flex justify-center items-center text-center p-4">
+
+    <section v-if="serverLoading" class="absolute top-0 left-0 w-full h-full flex justify-center items-center text-center p-4">
       <div class="max-w-[1280px]">
-        <div class="flex flex-col gap-4">
+        <article class="flex flex-col gap-4">
+
           <div class="animate-pulse">
-            <div class="text-xl md:text-2xl font-bold">We're currently using the free tier of Render.com.</div>
-            <div class="text-lg md:text-xl">Please be patient while the server loads.</div>
-            <div class="text-lg md:text-xl hidden md:block">While you wait, feel free to get familiar with the UI. You can search for buses in the top-left corner.</div>
-            <div class="text-lg md:text-xl">You’ll be able to track your bus location soon.</div>
+            <h1 class="text-xl md:text-2xl font-bold">We're currently using the free tier of Render.com.</h1>
+            <p class="text-lg md:text-xl">Please be patient while the server loads.</p>
+            <p class="text-lg md:text-xl hidden md:block">While you wait, feel free to get familiar with the UI. You can search for buses in the top-left corner.</p>
+            <p class="text-lg md:text-xl">You’ll be able to track your bus location soon.</p>
           </div>
-          <div class="bg-white p-4 rounded-lg hidden md:block">
-            <img class="rounded-lg" src="./assets/sample-location.png" width="1000" alt="">
-          </div>
-        </div>
+
+          <figure class="bg-white p-4 rounded-lg hidden md:block">
+            <img class="rounded-lg" src="./assets/sample-location.png" width="1000" alt="Sample bus location">
+            <figcaption class="text-lg md:text-xl text-center">Sample bus location image</figcaption>
+          </figure>
+          
+        </article>
       </div>
-    </div>
+    </section>
+
   </BaseLayout>
 </template>
