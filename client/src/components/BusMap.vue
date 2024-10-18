@@ -15,29 +15,19 @@
     >
       <l-popup>
         <div class="py-2 flex flex-col gap-2 text-base md:text-lg">
+
           <!-- Vehicle ID -->
           <div class="flex justify-between text-xs md:text-sm text-gray-400">
             <div class="flex items-center gap-2">
-              <!-- <font-awesome-icon class="text-blue-500" :icon="['fas', 'bus-simple']" /> -->
               <span>{{ bus.route_id }} ({{ bus.vehicle_id }})</span>
             </div>
-            <!-- Route ID -->
-            <!-- <div class="flex items-center gap-2">
-              <font-awesome-icon class="text-green-500" :icon="['fas', 'route']" />
-              <span>{{ bus.route_id }}</span>
-            </div> -->
-            <!-- Timestamp -->
             <div class="flex items-center gap-2">
-              <!-- <font-awesome-icon class="text-gray-500" :icon="['fas', 'clock']" /> -->
-              <span class="text-nowrap">{{ new Date(bus.timestamp * 1000).toLocaleTimeString('en-US', { timeZone: 'Asia/Kuala_Lumpur', hour: '2-digit', minute: '2-digit', hour12: true }) }}</span>
+              <span class="text-nowrap">{{ formatTime(bus.timestamp) }}</span>
             </div>
           </div>
 
           <!-- Location -->
           <div class="flex items-start gap-2 col-span-3">
-            <!-- <div>
-              <font-awesome-icon class="text-red-500" :icon="['fas', 'map-marker-alt']" />
-            </div> -->
             <span>{{ bus.location }}</span>
           </div>
 
@@ -54,6 +44,7 @@
               <span>Google Maps</span>
             </div>
           </div>
+
         </div>
       </l-popup>
     </l-marker>
@@ -64,6 +55,7 @@
 <script>
 import "leaflet/dist/leaflet.css";
 import { LMap, LTileLayer, LMarker, LPopup, LControlZoom } from '@vue-leaflet/vue-leaflet';
+import { formatTime } from "../utils";
 
 export default {
   name: 'BusMap',
@@ -113,6 +105,7 @@ export default {
     }
   },
   methods: {
+    formatTime,
     openMarkerPopup(latitude, longitude) {
       const markers = this.$refs.markers;
       if (!markers) return;

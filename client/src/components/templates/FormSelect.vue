@@ -227,7 +227,7 @@ const updateValueByList = (value, label) => {
             v-model="searchQuery"
             :placeholder="placeholder"
             @click="toggleOptions"
-            class="rounded-lg block py-3 h-[40px] px-3 flex items-center bg-white outline-none"
+            class="rounded-lg py-3 h-[40px] px-3 flex items-center bg-white outline-none"
             :class="[baseInputStyles, conditionalInputStyles]"
             :disabled="disabled"
           />
@@ -263,7 +263,7 @@ const updateValueByList = (value, label) => {
           v-else
           @click="toggleOptions"
           :id="id"
-          class="rounded-lg block py-3 h-[40px] flex justify-between items-center bg-white"
+          class="rounded-lg py-3 h-[40px] flex justify-between items-center bg-white"
           :class="[baseInputStyles, conditionalInputStyles]"
           :disabled="disabled"
         >

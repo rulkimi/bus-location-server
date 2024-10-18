@@ -1,24 +1,14 @@
 <script setup>
 import FormSelect from './templates/FormSelect.vue';
 
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 
-// Define emits correctly
 const emit = defineEmits(['route-id']);
-const selectedBusType = ref('feederBus');  // New state for selected bus type
+const selectedBusType = ref('feederBus');
 
-defineProps({
-  routes: Object
-})
+defineProps({ routes: Object });
 
-const getRouteId = routeId => {
-  // Use emit to trigger the event
-  emit('route-id', routeId);
-};
-
-const setSelectedBusType = (busType) => {
-  selectedBusType.value = busType;
-};
+const getRouteId = routeId => emit('route-id', routeId);
 </script>
 
 <template>
