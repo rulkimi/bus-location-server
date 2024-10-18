@@ -23,7 +23,7 @@ const handleClick = (latitude, longitude, vehicleId) => {
 </script>
 
 <template>
-  <ul class="bus-list max-h-[400px] overflow-y-scroll">
+  <ul class="bus-list max-h-[400px] md:max-h-[calc(100vh-200px)] overflow-y-scroll">
     <li
       v-for="bus in buses" :key="bus.vehicle_id" 
       @click="handleClick(bus.latitude, bus.longitude, bus.vehicle_id)"
