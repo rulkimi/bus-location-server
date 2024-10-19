@@ -33,13 +33,19 @@
 
           <!-- waze and google map -->
           <div class="flex gap-4">
-            <div class="flex items-start gap-2 cursor-pointer hover:underline" @click="openWaze(bus.latitude, bus.longitude)">
+            <div
+              class="flex items-start gap-2 cursor-pointer hover:underline"
+              @click="openWaze(bus.latitude, bus.longitude)"
+            >
               <div>
                 <font-awesome-icon :icon="['fab', 'waze']" />
               </div>
               <span>Waze</span>
             </div>
-            <div class="flex items-center gap-2 cursor-pointer hover:underline text-nowrap" @click="openGoogleMap(bus.latitude, bus.longitude)">
+            <div
+              class="flex items-center gap-2 cursor-pointer hover:underline text-nowrap"
+              @click="openGoogleMap(bus.latitude, bus.longitude)"
+            >
               <img src="../assets/google-map.png" width="12" alt="">
               <span>Google Maps</span>
             </div>
@@ -79,9 +85,7 @@ export default {
       this.$nextTick(() => this.openMarkerPopup(firstBus.latitude, firstBus.longitude));
     },
     serverLoading(newValue) {
-      console.log('serverLoading changed:', newValue);
       this.$nextTick(() => {
-        console.log('Updating mapKey:', this.mapKey);
         this.mapKey += 1;
       });
     },
