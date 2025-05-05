@@ -11,5 +11,5 @@ origins = [
     "https://rulkimi.github.io",
     "http://bus-location-tracker.rulkimi.com",
     "https://bus-location-tracker.rulkimi.com",
-    "https://bus-location-server-pi.vercel.app/",
+    "https://bus-location-server-pi.vercel.app",
 ]
