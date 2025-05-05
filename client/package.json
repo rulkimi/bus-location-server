@@ -2,7 +2,7 @@
   "name": "client",
   "private": true,
   "version": "0.0.0",
-  "homepage": "https://rulkimi.github.io/bus-location-server/",
+  "homepage": "https://bus-location-tracker.rulkimi.com/",
   "type": "module",
   "scripts": {
     "dev": "vite",
